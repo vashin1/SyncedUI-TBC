@@ -1,0 +1,20 @@
+## Interface: 20400
+## Author: Elv, Bunny
+## Version: 1.32
+## Title: |cffA11313E|r|cffC4C4C4lvUI|r
+## Notes: User Interface replacement AddOn for World of Warcraft.
+## SavedVariables: ElvDB, ElvPrivateDB
+## SavedVariablesPerCharacter: ElvCharacterDB
+## Dependencies: !Compatibility
+## OptionalDeps: !DebugTools, SharedMedia, Tukui, ButtonFacade
+## X-oUF: ElvUF
+
+developer\load_developer.xml
+Libraries\Load_Libraries.xml
+locales\load_locales.xml
+media\load_media.xml
+init.lua
+config\load_config.xml
+core\load_core.xml
+layout\load_layout.xml
+modules\load_modules.xml
