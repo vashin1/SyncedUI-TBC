@@ -2,9 +2,12 @@
 
 
 ## Screenshots
+![Screenshot](http://i.imgur.com/5iLXlqf.jpg)
+
+![Screenshot](http://i.imgur.com/3IAHQ7X.jpg)
 
 
-## Installation (Latest)
+## Installation
 1) Remove your Interface + WTF folder from your TBC folder  
 2) Use provided Interface folder  
 3) Launch game and log into your main character and take some time to setup your video, sound and Interface settings.  
