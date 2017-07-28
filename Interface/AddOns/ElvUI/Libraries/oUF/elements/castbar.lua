@@ -47,7 +47,7 @@ local UNIT_SPELLCAST_START = function(self, event, unit)
 	startTime = startTime / 1e3
 	local max = endTime - startTime
 
-	castbar.castname = name
+	castbar.castName = name
 	castbar.duration = GetTime() - startTime
 	castbar.max = max
 	castbar.delay = 0
@@ -96,7 +96,7 @@ local UNIT_SPELLCAST_FAILED = function(self, event, unit, spellname)
 	if (self.unit ~= unit and self.realUnit ~= unit) then return end
 
 	local castbar = self.Castbar
-	if (castbar.castname ~= spellname) and (castbar.tradeSkillCastName ~= spellname) then
+	if spellname and (castbar.castName ~= spellname and castbar.tradeSkillCastName ~= spellname) then
 		return
 	end
 
@@ -123,7 +123,7 @@ local UNIT_SPELLCAST_FAILED_QUIET = function(self, event, unit, spellname)
 	if (self.unit ~= unit and self.realUnit ~= unit) then return end
 
 	local castbar = self.Castbar
-	if (castbar.castname ~= spellname) and (castbar.tradeSkillCastName ~= spellname) then
+	if spellname and (castbar.castName ~= spellname and castbar.tradeSkillCastName ~= spellname) then
 		return
 	end
 
@@ -141,7 +141,7 @@ local UNIT_SPELLCAST_INTERRUPTED = function(self, event, unit, spellname)
 	if (self.unit ~= unit and self.realUnit ~= unit) then return end
 
 	local castbar = self.Castbar
-	if (castbar.castname ~= spellname) then
+	if spellname and castbar.castName ~= spellname then
 		return
 	end
 
@@ -179,11 +179,11 @@ local UNIT_SPELLCAST_DELAYED = function(self, event, unit)
 	end
 end
 
-local UNIT_SPELLCAST_STOP = function(self, event, unit, spellname)
+local UNIT_SPELLCAST_STOP = function(self, event, unit)
 	if (self.unit ~= unit and self.realUnit ~= unit) then return end
 
 	local castbar = self.Castbar
-	if (castbar.castname ~= spellname) then
+	if spellname and castbar.castName ~= spellname then
 		return
 	end
 
@@ -227,7 +227,7 @@ local UNIT_SPELLCAST_CHANNEL_START = function(self, event, unit)
 	-- executed or be fully completed by the OnUpdate handler before CHANNEL_START
 	-- is called.
 	castbar.casting = nil
-	castbar.castname = nil
+	castbar.castName = nil
 
 	castbar:SetMinMaxValues(0, max)
 	castbar:SetValue(duration)
@@ -360,7 +360,7 @@ local onUpdate = function(self, elapsed)
 		self.holdTime = self.holdTime - elapsed
 	else
 		self.casting = nil
-		self.castname = nil
+		self.castName = nil
 		self.channeling = nil
 		tradeskillTotal = 0
 

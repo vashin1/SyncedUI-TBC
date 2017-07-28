@@ -1,6 +1,5 @@
 local E, L, V, P, G = unpack(ElvUI)
 local TT = E:NewModule("Tooltip", "AceHook-3.0", "AceEvent-3.0")
-local LIP = LibStub("ItemPrice-1.1")
 local LMH = LibStub("LibMobHealth-4.0")
 
 local _G = _G
@@ -263,7 +262,7 @@ function TT:GetItemLvL(unit)
 	end
 
 	if total < 1 then
-		return
+		return 0
 	end
 
 	return floor(total / item)
@@ -540,14 +539,6 @@ function TT:GameTooltip_OnTooltipSetItem(tt)
 			local _, _, rarity, itemLevel, _, _, _, _, itemEquipLoc = GetItemInfo(link)
 			if itemLevel and rarity and rarity > 1 and itemEquipLoc and itemEquipLoc ~= "" and itemEquipLoc ~= "INVTYPE_AMMO" and itemEquipLoc ~= "INVTYPE_BAG" and itemEquipLoc ~= "INVTYPE_QUIVER" and itemEquipLoc ~= "INVTYPE_TABARD" then
 				tt:AddLine(format(L["Item Level %d"], itemLevel))
-			end
-		end
-
-		if not MerchantFrame:IsShown() then
-			local value = LIP:GetSellValue(link)
-			if value and value > 0 then
-				value = num > 0 and value * num or value
-				tt:AddDoubleLine(SALE_PRICE_COLON, E:FormatMoney(value, "BLIZZARD", false), nil, nil, nil, 1, 1, 1)
 			end
 		end
 

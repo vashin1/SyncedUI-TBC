@@ -5,7 +5,7 @@ local LSM = LibStub("LibSharedMedia-3.0")
 
 local _G = _G;
 local time, difftime = time, difftime;
-local pairs, unpack, select, tostring, pcall, next, tonumber, type, assert = pairs, unpack, select, tostring, pcall, next, tonumber, type, assert;
+local pairs, unpack, select, tostring, next, tonumber, type, assert = pairs, unpack, select, tostring, next, tonumber, type, assert;
 local tinsert, tremove, tsort, twipe, tconcat = table.insert, table.remove, table.sort, table.wipe, table.concat;
 local random = math.random;
 local len, gsub, find, sub, gmatch, format, split = string.len, string.gsub, string.find, string.sub, string.gmatch, string.format, string.split;
@@ -14,24 +14,18 @@ local strlower, strsub, strlen, strupper = strlower, strsub, strlen, strupper;
 local BetterDate = BetterDate
 local ChatEdit_SetLastTellTarget = ChatEdit_SetLastTellTarget
 local ChatFrameEditBox = ChatFrameEditBox
-local ChatFrame_ActivateCombatMessagesChat = ChatFrame_ActivateCombatMessagesChat
 local ChatFrame_ConfigEventHandler = ChatFrame_ConfigEventHandler
 local ChatFrame_SendTell = ChatFrame_SendTell
 local ChatFrame_SystemEventHandler = ChatFrame_SystemEventHandler
-local Chat_GetChatCategory = Chat_GetChatCategory
 local CreateFrame = CreateFrame
-local FCFManager_ShouldSuppressMessage = FCFManager_ShouldSuppressMessage
 local FCF_GetCurrentChatFrame = FCF_GetCurrentChatFrame
 local FCF_SetChatWindowFontSize = FCF_SetChatWindowFontSize
 local FloatingChatFrame_OnEvent = FloatingChatFrame_OnEvent
-local FloatingChatFrame_Update = FloatingChatFrame_Update
-local GMChatFrame_IsGM = GMChatFrame_IsGM
 local GetChannelName = GetChannelName
 local GetDefaultLanguage = GetDefaultLanguage
 local GetGuildRosterMOTD = GetGuildRosterMOTD
 local GetMouseFocus = GetMouseFocus
 local GetNumRaidMembers = GetNumRaidMembers
-local GetPlayerInfoByGUID = GetPlayerInfoByGUID
 local GetTime = GetTime
 local InCombatLockdown = InCombatLockdown
 local IsInInstance = IsInInstance
@@ -39,7 +33,6 @@ local IsMouseButtonDown = IsMouseButtonDown
 local IsShiftKeyDown = IsShiftKeyDown
 local PlaySound = PlaySound
 local PlaySoundFile = PlaySoundFile
-local ScrollFrameTemplate_OnMouseWheel = ScrollFrameTemplate_OnMouseWheel
 local ShowUIPanel, HideUIPanel = ShowUIPanel, HideUIPanel
 local StaticPopup_Visible = StaticPopup_Visible
 local ToggleFrame = ToggleFrame
@@ -358,12 +351,7 @@ function CH:StyleChat(frame)
 end
 
 function CH:UpdateSettings()
-	for i = 1, CreatedFrames do
-		local chat = _G[format("ChatFrame%d", i)]
-		local name = chat:GetName()
-		local editbox = _G["ChatFrameEditBox"]
-		editbox:SetAltArrowKeyMode(CH.db.useAltKey)
-	end
+	ChatFrameEditBox:SetAltArrowKeyMode(CH.db.useAltKey)
 end
 
 local function removeIconFromLine(text)
@@ -498,7 +486,6 @@ function CH:UpdateChatTabs()
 		local tab = _G[format("ChatFrame%sTab", i)]
 		local id = chat:GetID();
 		local isDocked = chat.isDocked
-		local chatbg = format("ChatFrame%dBackground", i);
 
 		if chat:IsShown() and (id == self.RightChatWindowID) then
 			if E.db.chat.panelBackdrop == "HIDEBOTH" or E.db.chat.panelBackdrop == "LEFT" then
@@ -528,7 +515,7 @@ function CH:PositionChat(override)
 
 	if not self.db.lockPositions or E.private.chat.enable ~= true then return end
 
-	local chat, chatbg, tab, id, point, isDocked
+	local chat, tab, id, isDocked
 	local fadeUndockedTabs = E.db["chat"].fadeUndockedTabs
 	local fadeTabsNoBackdrop = E.db["chat"].fadeTabsNoBackdrop
 
@@ -536,10 +523,8 @@ function CH:PositionChat(override)
 		local BASE_OFFSET = 57 + E.Spacing*3;
 
 		chat = _G[format("ChatFrame%d", i)]
-		chatbg = format("ChatFrame%dBackground", i)
 		id = chat:GetID()
 		tab = _G[format("ChatFrame%sTab", i)]
-		point = chat:GetPoint()
 		isDocked = chat.isDocked
 		tab.isDocked = chat.isDocked
 		tab.owner = chat
@@ -1288,7 +1273,7 @@ function CH:ChatEdit_OnEnterPressed()
 	local type = this:GetAttribute("chatType")
 	if ChatTypeInfo[type].sticky == 1 then
 		if not self.db.sticky then type = "SAY" end
-		this:SetAttribute("stickyType", type)
+		this:SetAttribute("chatType", type)
 	end
 end
 
@@ -1345,7 +1330,7 @@ function CH:ChatEdit_AddHistory(_, line)
 	if line:find("/rl") then return; end
 
 	if strlen(line) > 0 then
-		for i, text in pairs(ElvCharacterDB.ChatEditHistory) do
+		for _, text in pairs(ElvCharacterDB.ChatEditHistory) do
 			if text == line then
 				return
 			end
@@ -1363,7 +1348,7 @@ function CH:UpdateChatKeywords()
 	local keywords = self.db.keywords
 	keywords = keywords:gsub(",%s", ",")
 
-	for i=1, #{split(",", keywords)} do
+	for i = 1, #{split(",", keywords)} do
 		local stringValue = select(i, split(",", keywords))
 		if stringValue ~= "" then
 			CH.Keywords[stringValue] = true
@@ -1429,7 +1414,7 @@ function CH:SaveChatHistory(event, ...)
 		ElvCharacterDB.ChatLog[timeForMessage] = temp
 
 		local c, k = 0
-		for id, data in pairs(ElvCharacterDB.ChatLog) do
+		for id, _ in pairs(ElvCharacterDB.ChatLog) do
 			c = c + 1
 			if (not k) or k > id then
 				k = id
@@ -1447,7 +1432,7 @@ function CH:ChatFrame_AddMessageEventFilter(event, filter)
 
 	if chatFilters[event] then
 		-- Only allow a filter to be added once
-		for index, filterFunc in next, chatFilters[event] do
+		for _, filterFunc in next, chatFilters[event] do
 			if filterFunc == filter then
 				return;
 			end
@@ -1613,6 +1598,18 @@ function CH:Initialize()
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID_LEADER", CH.FindURL)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_BATTLEGROUND", CH.FindURL)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_BATTLEGROUND_LEADER", CH.FindURL)
+
+	ChatTypeInfo["SAY"].sticky = 1
+	ChatTypeInfo["EMOTE"].sticky = 1
+	ChatTypeInfo["YELL"].sticky = 1
+	ChatTypeInfo["WHISPER"].sticky = 1
+	ChatTypeInfo["PARTY"].sticky = 1
+	ChatTypeInfo["RAID"].sticky = 1
+	ChatTypeInfo["RAID_WARNING"].sticky = 1
+	ChatTypeInfo["BATTLEGROUND"].sticky = 1
+	ChatTypeInfo["GUILD"].sticky = 1
+	ChatTypeInfo["OFFICER"].sticky = 1
+	ChatTypeInfo["CHANNEL"].sticky = 1
 
 	if self.db.chatHistory then
 		self.SoundPlayed = true

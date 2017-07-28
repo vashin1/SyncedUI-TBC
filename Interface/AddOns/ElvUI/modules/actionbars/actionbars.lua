@@ -6,7 +6,6 @@ local pairs, select, unpack = pairs, select, unpack
 local ceil = math.ceil
 local format, gsub, split = string.format, string.gsub, string.split
 
-local hooksecurefunc = hooksecurefunc
 local CreateFrame = CreateFrame
 local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
@@ -22,7 +21,6 @@ local SetCVar = SetCVar
 local SetModifiedClick = SetModifiedClick
 local RegisterStateDriver = RegisterStateDriver
 local UnregisterStateDriver = UnregisterStateDriver
-local GameTooltip_Hide = GameTooltip_Hide
 local NUM_ACTIONBAR_BUTTONS = NUM_ACTIONBAR_BUTTONS
 
 local LAB = LibStub("LibActionButton-1.0")
@@ -85,7 +83,6 @@ function AB:PositionAndSizeBar(barName)
 	local bar = self["handledBars"][barName]
 
 	bar.db = self.db[barName]
-	bar.db.position = nil
 
 	if numButtons < buttonsPerRow then
 		buttonsPerRow = numButtons
@@ -95,7 +92,7 @@ function AB:PositionAndSizeBar(barName)
 		numColumns = 1
 	end
 
-	if self.db[barName].backdrop == true then
+	if self.db[barName].backdrop then
 		bar.backdrop:Show()
 	else
 		bar.backdrop:Hide()
@@ -104,8 +101,8 @@ function AB:PositionAndSizeBar(barName)
 		heightMult = 1
 	end
 
-	local barWidth = (size * (buttonsPerRow * widthMult)) + ((buttonSpacing * (buttonsPerRow - 1)) * widthMult) + (buttonSpacing * (widthMult-1)) + ((self.db[barName].backdrop == true and (E.Border + backdropSpacing) or E.Spacing)*2)
-	local barHeight = (size * (numColumns * heightMult)) + ((buttonSpacing * (numColumns - 1)) * heightMult) + (buttonSpacing * (heightMult-1)) + ((self.db[barName].backdrop == true and (E.Border + backdropSpacing) or E.Spacing)*2)
+	local barWidth = (size * (buttonsPerRow * widthMult)) + ((buttonSpacing * (buttonsPerRow - 1)) * widthMult) + (buttonSpacing * (widthMult-1)) + ((self.db[barName].backdrop and (E.Border + backdropSpacing) or E.Spacing)*2)
+	local barHeight = (size * (numColumns * heightMult)) + ((buttonSpacing * (numColumns - 1)) * heightMult) + (buttonSpacing * (heightMult-1)) + ((self.db[barName].backdrop and (E.Border + backdropSpacing) or E.Spacing)*2)
 	bar:Width(barWidth)
 	bar:Height(barHeight)
 
@@ -136,19 +133,16 @@ function AB:PositionAndSizeBar(barName)
 		bar:SetParent(E.UIParent)
 	end
 
-	local button, lastButton, lastColumnButton
-	local firstButtonSpacing = (self.db[barName].backdrop == true and (E.Border + backdropSpacing) or E.Spacing)
+	local button, lastButton, lastColumnButton, x, y
+	local firstButtonSpacing = (self.db[barName].backdrop and (E.Border + backdropSpacing) or E.Spacing)
 	for i = 1, NUM_ACTIONBAR_BUTTONS do
 		button = bar.buttons[i]
 		lastButton = bar.buttons[i-1]
 		lastColumnButton = bar.buttons[i-buttonsPerRow]
-		button:SetParent(bar)
 		button:ClearAllPoints()
 		button:Size(size)
-		button:SetAttribute("showgrid", 1)
 
 		if i == 1 then
-			local x, y
 			if point == "BOTTOMLEFT" then
 				x, y = firstButtonSpacing, firstButtonSpacing
 			elseif point == "TOPRIGHT" then
@@ -158,11 +152,10 @@ function AB:PositionAndSizeBar(barName)
 			else
 				x, y = -firstButtonSpacing, firstButtonSpacing
 			end
-
 			button:Point(point, bar, point, x, y)
 		elseif (i - 1) % buttonsPerRow == 0 then
-			local x = 0
-			local y = -buttonSpacing
+			x = 0
+			y = -buttonSpacing
 			local buttonPoint, anchorPoint = "TOP", "BOTTOM"
 			if verticalGrowth == "UP" then
 				y = buttonSpacing
@@ -171,15 +164,14 @@ function AB:PositionAndSizeBar(barName)
 			end
 			button:Point(buttonPoint, lastColumnButton, anchorPoint, x, y)
 		else
-			local x = buttonSpacing
-			local y = 0
+			x = buttonSpacing
+			y = 0
 			local buttonPoint, anchorPoint = "LEFT", "RIGHT"
 			if horizontalGrowth == "LEFT" then
 				x = -buttonSpacing
 				buttonPoint = "RIGHT"
 				anchorPoint = "LEFT"
 			end
-
 			button:Point(buttonPoint, lastButton, anchorPoint, x, y)
 		end
 
@@ -214,7 +206,7 @@ function AB:PositionAndSizeBar(barName)
 
 		if not bar.initialized then
 			bar.initialized = true
-			AB:PositionAndSizeBar(barName)
+			self:PositionAndSizeBar(barName)
 			return;
 		end
 	else
@@ -228,8 +220,8 @@ function AB:PositionAndSizeBar(barName)
 end
 
 function AB:CreateBar(id)
-	local bar = CreateFrame("Frame", "ElvUI_Bar" .. id, E.UIParent, "SecureStateHeaderTemplate")
-	local point, anchor, attachTo, x, y = split(",", self["barDefaults"]["bar" .. id].position)
+	local bar = CreateFrame("Frame", "ElvUI_Bar"..id, E.UIParent, "SecureStateHeaderTemplate")
+	local point, anchor, attachTo, x, y = split(",", self["barDefaults"]["bar"..id].position)
 	bar:Point(point, anchor, attachTo, x, y)
 	bar.id = id
 	bar:CreateBackdrop("Default")
@@ -243,7 +235,7 @@ function AB:CreateBar(id)
 	self:HookScript(bar, "OnLeave", "Bar_OnLeave")
 
 	for i = 1, 12 do
-		bar.buttons[i] = LAB:CreateButton(i, format(bar:GetName() .. "Button%d", i), bar, nil)
+		bar.buttons[i] = LAB:CreateButton(i, format(bar:GetName().."Button%d", i), bar, nil)
 		bar.buttons[i]:SetState(0, i)
 		for k = 1, 11 do
 			bar.buttons[i]:SetState(k, (k - 1) * 12 + i)
@@ -260,9 +252,9 @@ function AB:CreateBar(id)
 
 	self["handledBars"]["bar"..id] = bar
 	E:CreateMover(bar, "ElvAB_"..id, L["Bar "]..id, nil, nil, nil,"ALL,ACTIONBARS")
-	self:PositionAndSizeBar("bar"..id);
+	self:PositionAndSizeBar("bar"..id)
 
-	return bar;
+	return bar
 end
 
 function AB:PLAYER_REGEN_ENABLED()
@@ -370,7 +362,7 @@ function AB:UpdateButtonSettings()
 
 	self:UpdatePetBindings()
 	self:UpdateStanceBindings()
-	for barName, bar in pairs(self["handledBars"]) do
+	for _, bar in pairs(self["handledBars"]) do
 		self:UpdateButtonConfig(bar, bar.bindButtons)
 	end
 
@@ -401,7 +393,7 @@ function AB:StyleButton(button, noBackdrop, useMasque)
 	local hotkey = _G[name.."HotKey"]
 	local border = _G[name.."Border"]
 	local macroName = _G[name.."Name"]
-	local normal = _G[name.."NormalTexture"]
+--	local normal = _G[name.."NormalTexture"]
 	local normal2 = button:GetNormalTexture()
 	local buttonCooldown = _G[name.."Cooldown"]
 	local color = self.db.fontColor
@@ -559,7 +551,7 @@ function AB:DisableBlizzard()
 	MultiBarRight:SetParent(UIHider)
 	MultiBarRight.Show = E.noop
 
-	for i = 1,12 do
+	for i = 1, 12 do
 		_G["ActionButton"..i]:Hide()
 		_G["ActionButton"..i]:UnregisterAllEvents()
 		_G["ActionButton"..i]:SetAttribute("statehidden", true)
@@ -642,7 +634,7 @@ function AB:FixKeybindText(button)
 	local hotkey = _G[button:GetName().."HotKey"]
 	local text = hotkey:GetText()
 
-	if(text) then
+	if text then
 		text = gsub(text, "SHIFT%-", L["KEY_SHIFT"])
 		text = gsub(text, "ALT%-", L["KEY_ALT"])
 		text = gsub(text, "CTRL%-", L["KEY_CTRL"])
@@ -679,7 +671,7 @@ LAB.RegisterCallback(AB, "OnButtonUpdate", AB.LAB_ButtonUpdate)
 
 function AB:Initialize()
 	self.db = E.db.actionbar
-	if(E.private.actionbar.enable ~= true) then return; end
+	if E.private.actionbar.enable ~= true then return; end
 	E.ActionBars = AB;
 
 	self.LBFGroup = LBF and LBF:Group("ElvUI", "ActionBars")
@@ -716,4 +708,8 @@ function AB:Initialize()
 	LOCK_ACTIONBAR = (self.db.lockActionBars == true and "1" or "0")
 end
 
-E:RegisterModule(AB:GetName())
+local function InitializeCallback()
+	AB:Initialize()
+end
+
+E:RegisterModule(AB:GetName(), InitializeCallback)

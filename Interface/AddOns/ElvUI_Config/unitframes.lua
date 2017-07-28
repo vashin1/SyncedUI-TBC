@@ -2222,12 +2222,7 @@ E.Options.args.unitframe = {
 								},
 								castColor = {
 									order = 4,
-									name = L["Interruptable"],
-									type = "color"
-								},
-								castNoInterrupt = {
-									order = 5,
-									name = L["Non-Interruptable"],
+									name = L["Cast Color"],
 									type = "color"
 								}
 							}
@@ -2543,32 +2538,17 @@ E.Options.args.unitframe.args.player = {
 					type = "toggle",
 					order = 5,
 					name = L["Detach From Frame"],
-					set = function(info, value)
-						if value == true then
-							E.Options.args.unitframe.args.player.args.classbar.args.height.max = 300
-						else
-							E.Options.args.unitframe.args.player.args.classbar.args.height.max = 30
-						end
-						E.db.unitframe.units["player"]["classbar"][ info[#info] ] = value;
-						UF:CreateAndUpdateUF("player")
-					end,
-				},
-				verticalOrientation = {
-					order = 6,
-					type = "toggle",
-					name = L["Vertical Orientation"],
-					disabled = function() return not E.db.unitframe.units["player"]["classbar"].detachFromFrame end,
 				},
 				detachedWidth = {
 					type = "range",
-					order = 7,
+					order = 6,
 					name = L["Detached Width"],
 					disabled = function() return not E.db.unitframe.units["player"]["classbar"].detachFromFrame; end,
 					min = ((E.db.unitframe.thinBorders or E.PixelMode) and 3 or 7), max = 800, step = 1,
 				},
 				parent = {
 					type = "select",
-					order = 8,
+					order = 7,
 					name = L["Parent"],
 					desc = L["Choose UIPARENT to prevent it from hiding with the unitframe."],
 					disabled = function() return not E.db.unitframe.units["player"]["classbar"].detachFromFrame; end,
@@ -3572,7 +3552,33 @@ E.Options.args.unitframe.args.pet = {
 		portrait = GetOptionsTable_Portrait(UF.CreateAndUpdateUF, "pet"),
 		buffs = GetOptionsTable_Auras(true, "buffs", false, UF.CreateAndUpdateUF, "pet"),
 		debuffs = GetOptionsTable_Auras(true, "debuffs", false, UF.CreateAndUpdateUF, "pet"),
-		castbar = GetOptionsTable_Castbar(false, UF.CreateAndUpdateUF, "pet")
+		castbar = GetOptionsTable_Castbar(false, UF.CreateAndUpdateUF, "pet"),
+		happiness = {
+			order = 700,
+			type = "group",
+			name = L["Happiness"],
+			get = function(info) return E.db.unitframe.units["pet"]["happiness"][ info[#info] ] end,
+			set = function(info, value) E.db.unitframe.units["pet"]["happiness"][ info[#info] ] = value; UF:CreateAndUpdateUF("pet") end,
+			disabled = E.myclass ~= "HUNTER",
+			args = {
+				enable = {
+					order = 1,
+					type = "toggle",
+					name = L["Enable"]
+				},
+				autoHide = {
+					order = 2,
+					type = "toggle",
+					name = L["Auto-Hide"],
+				},
+				width = {
+					order = 3,
+					type = "range",
+					name = L["Size"],
+					min = 5, max = 40, step = 1
+				}
+			}
+		}
 	}
 };
 

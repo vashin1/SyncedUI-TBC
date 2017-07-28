@@ -145,6 +145,7 @@ function UF:Update_PartyFrames(frame, db)
 		frame.USE_PORTRAIT_OVERLAY = frame.USE_PORTRAIT and (db.portrait.overlay or frame.ORIENTATION == "MIDDLE");
 		frame.PORTRAIT_WIDTH = (frame.USE_PORTRAIT_OVERLAY or not frame.USE_PORTRAIT) and 0 or db.portrait.width;
 
+		frame.HAPPINESS_WIDTH = 0
 		frame.CLASSBAR_WIDTH = 0;
 		frame.CLASSBAR_YOFFSET = 0;
 
@@ -168,8 +169,6 @@ function UF:Update_PartyFrames(frame, db)
 
 		frame.POWERBAR_HEIGHT = 0;
 		frame.POWERBAR_WIDTH = 0;
-		frame.BOTTOM_OFFSET = 0;
-
 		frame.BOTTOM_OFFSET = 0;
 
 		local childDB = db.petsGroup;
