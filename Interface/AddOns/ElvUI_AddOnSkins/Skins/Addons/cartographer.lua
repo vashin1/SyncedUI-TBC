@@ -5,6 +5,7 @@ local AS = E:GetModule("AddOnSkins")
 -- Cartographer 2.2
 
 local function LockButtonSkin()
+	if not E.private.addOnSkins.Cartographer then return end
 	if not Cartographer_LookNFeel then return end
 
 	local function SkinLockButton(button)
@@ -104,6 +105,7 @@ local function LockButtonSkin()
 end
 
 local function NoteFrameSkin()
+	if not E.private.addOnSkins.Cartographer then return end
 	if not Cartographer_Notes then return end
 
 	local function SkinNoteFrame()
@@ -136,20 +138,38 @@ local function NoteFrameSkin()
 		frame.isSkinned = true
 	end
 
-	if Cartographer_Notes then
-		S:SecureHook(Cartographer_Notes, "OpenNewNoteFrame", function(self)
-			SkinNoteFrame()
+	S:SecureHook(Cartographer_Notes, "OpenNewNoteFrame", function(self)
+		SkinNoteFrame()
 
-			S:Unhook(self, "OpenNewNoteFrame")
-			S:Unhook(self, "ShowEditDialog")
-		end)
-		S:SecureHook(Cartographer_Notes, "ShowEditDialog", function(self)
-			SkinNoteFrame()
+		S:Unhook(self, "OpenNewNoteFrame")
+		S:Unhook(self, "ShowEditDialog")
+	end)
+	S:SecureHook(Cartographer_Notes, "ShowEditDialog", function(self)
+		SkinNoteFrame()
 
-			S:Unhook(self, "OpenNewNoteFrame")
-			S:Unhook(self, "ShowEditDialog")
-		end)
+		S:Unhook(self, "OpenNewNoteFrame")
+		S:Unhook(self, "ShowEditDialog")
+	end)
+end
+
+local function QuestInfoSkin()
+	if not E.private.addOnSkins.Cartographer then return end
+	if not Cartographer_QuestInfo then return end
+
+	local function SkinQuestInfo()
+		local tooltip = _G["CQI_Tooltip"]
+		if tooltip.isSkinned then return end
+
+		tooltip:StripTextures()
+		tooltip:CreateBackdrop("Transparent")
+
+		local button = _G["QuestInfoButton"]
+		if button.isSkinned then return end
+
+		S:HandleButton(button)
 	end
+
+	SkinQuestInfo()
 end
 
 local function LoadSkin()
@@ -162,11 +182,14 @@ local function LoadSkin()
 	E:GetModule("AddOnSkins"):SkinLibrary("Tablet-2.0")
 	E:GetModule("AddOnSkins"):SkinLibrary("LibRockConfig-1.0")
 
-	if not AS:IsAddonExist("Cartographer_Notes") then
+	if not AS:IsAddonExist("Cartographer_LookNFeel") then
 		LockButtonSkin()
 	end
-	if not AS:IsAddonExist("Cartographer_LookNFeel") then
+	if not AS:IsAddonExist("Cartographer_Notes") then
 		NoteFrameSkin()
+	end
+	if not AS:IsAddonExist("Cartographer_QuestInfo") then
+		QuestInfoSkin()
 	end
 end
 
@@ -177,4 +200,7 @@ if AS:IsAddonExist("Cartographer_LookNFeel") then
 end
 if AS:IsAddonExist("Cartographer_Notes") then
 	S:AddCallbackForAddon("Cartographer_Notes", "Cartographer_Notes", NoteFrameSkin)
+end
+if AS:IsAddonExist("Cartographer_QuestInfo") then
+	S:AddCallbackForAddon("Cartographer_QuestInfo", "Cartographer_QuestInfo", QuestInfoSkin)
 end

@@ -67,6 +67,7 @@ local addonList = {
 	"RaidRoll",
 	"Cartographer",
 	"EnergyWatch_v2",
+	"Cartographer3",
 }
 
 AS.addOns = {};
@@ -181,7 +182,7 @@ local function getOptions()
 						name = L["DBM"],
 						get = function(info) return E.db.addOnSkins[info[#info]]; end,
 						set = function(info, value) E.db.addOnSkins[info[#info]] = value; DBM.Bars:ApplyStyle(); DBM.BossHealth:UpdateSettings(); end,
-						disabled = function() return not AS:CheckAddOn("DBM-Core"); end,
+						disabled = function() return not AS:CheckAddOn("DBM_API"); end,
 						args = {
 							dbmBarHeight = {
 								order = 1,
