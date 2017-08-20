@@ -191,8 +191,8 @@ E.Options.args.general = {
 				classCacheEnable = {
 					order = 52,
 					type = "toggle",
-					name = L["Class Caching"],
-					desc = L["Enable class information caching for coloring names in chat and nameplates."],
+					name = L["Enable"],
+					desc = L["Enable class caching to colorize names in chat and nameplates."],
 					get = function(info) return E.private.general.classCache end,
 					set = function(info, value)
 						E.private.general.classCache = value
@@ -211,24 +211,14 @@ E.Options.args.general = {
 					end,
 					disabled = function() return not E.private.general.classCache end
 				},
-				classCacheRequestUnitInfo = {
+				classCacheRequestInfo = {
 					order = 54,
-					type = "select",
-					name = L["Request class info for nameplates"],
-					desc = L["Information will be requested via /who."],
-					values = {
-						["false"] = L["Disable"],
-						["friendly"] = L["Friendly only"],
-						["enemy"] = L["Enemy only"],
-						["all"] = ALL
-					},
-					get = function(info) return E.db.general.classCacheRequestUnitInfo or "false" end,
+					type = "toggle",
+					name = L["Request info for class cache"],
+					desc = L["Use LibWho to cache class info"],
+					get = function(info) return E.db.general.classCacheRequestInfo end,
 					set = function(info, value)
-						if value == "false" then
-							E.db.general.classCacheRequestUnitInfo = false
-						else
-							E.db.general.classCacheRequestUnitInfo = value
-						end
+						E.db.general.classCacheRequestInfo = value
 					end,
 					disabled = function() return not E.private.general.classCache end
 				},
@@ -599,8 +589,13 @@ E.Options.args.general = {
 						["disabled"] = L["Disabled"]
 					}
 				},
-				font = {
+				spacer = {
 					order = 3,
+					type = "description",
+					name = ""
+				},
+				font = {
+					order = 4,
 					type = "select",
 					name = L["Font"],
 					dialogControl = "LSM30_Font",
@@ -610,7 +605,7 @@ E.Options.args.general = {
 					disabled = function() return E.private.general.chatBubbles == "disabled"; end
 				},
 				fontSize = {
-					order = 4,
+					order = 5,
 					type = "range",
 					name = L["Font Size"],
 					get = function(info) return E.private.general.chatBubbleFontSize; end,
@@ -619,7 +614,7 @@ E.Options.args.general = {
 					disabled = function() return E.private.general.chatBubbles == "disabled"; end
 				},
 				fontOutline = {
-					order = 5,
+					order = 6,
 					type = "select",
 					name = L["Font Outline"],
 					get = function(info) return E.private.general.chatBubbleFontOutline end,
