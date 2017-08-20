@@ -1,5 +1,6 @@
 # SyncedUI - TBC
 
+An addon compilation and custom ElvUI profile for TBC clients.  
 
 ## Screenshots
 ![Screenshot](http://i.imgur.com/5iLXlqf.jpg)
