@@ -20,7 +20,8 @@ V["general"] = {
 		["hideCalendar"] = true,
 	},
 	["classCache"] = true,
-	["classColorMentionsSpeech"] = true
+	["classColorMentionsSpeech"] = true,
+	["raidUtility"] = false
 }
 
 V["bags"] = {
@@ -84,6 +85,7 @@ V["skins"] = {
 		["petition"] = true,
 		["pvp"] = true,
 		["quest"] = true,
+		["questtimer"] = true,
 		["raid"] = true,
 		["socket"] = true,
 		["spellbook"] = true,
