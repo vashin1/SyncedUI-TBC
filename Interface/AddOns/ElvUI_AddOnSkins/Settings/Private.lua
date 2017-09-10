@@ -13,6 +13,7 @@ V.addOnSkins = {
 	Clique = true,
 	FloAspectBar = true,
 	FloTotemBar = true,
+	Spy = true,
 	AtlasLoot = true,
 	Atlas = true,
 	FlightMap = true,
@@ -58,6 +59,8 @@ V.addOnSkins = {
 	Cartographer = true,
 	EnergyWatch_v2 = true,
 	Cartographer3 = true,
+	QuestHelper = true,
+	EQCompare = true,
 
 	Blizzard_WorldStateFrame = true,
 }

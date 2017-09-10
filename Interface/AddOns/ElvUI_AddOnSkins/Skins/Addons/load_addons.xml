@@ -11,6 +11,7 @@
 	<Script file="clique.lua"/>
 	<Script file="floAspectBar.lua"/>
 	<Script file="floTotemBar.lua"/>
+	<Script file="spy.lua"/>
 	<Script file="atlasLoot.lua"/>
 	<Script file="atlas.lua"/>
 	<Script file="flightMap.lua"/>
@@ -56,4 +57,6 @@
 	<Script file="cartographer.lua"/>
 	<Script file="EnergyWatch_v2.lua"/>
 	<Script file="cartographer3.lua"/>
+	<Script file="questHelper.lua"/>
+	<Script file="eqCompare.lua"/>
 </Ui>
