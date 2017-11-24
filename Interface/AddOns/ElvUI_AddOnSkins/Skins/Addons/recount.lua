@@ -34,32 +34,12 @@ local function LoadSkin()
 		frame.Title:FontTemplate()
 		frame.Title:SetTextColor(unpack(E.media.rgbvaluecolor))
 
-		frame.CloseButton:ClearAllPoints()
-		frame.CloseButton:SetPoint("RIGHT", header, -6, 0)
+		S:HandleCloseButton(frame.CloseButton)
+		frame.CloseButton.backdrop:SetInside()
+		frame.CloseButton:Size(18)
 	end
 
 	SkinFrame(Recount.MainWindow)
-
-	S:HandleCloseButton(Recount.MainWindow.CloseButton)
-	Recount.MainWindow.CloseButton:Size(32)
-	Recount.MainWindow.CloseButton:Point("TOPRIGHT", 4, -3)
-
-	S:HandleNextPrevButton(Recount.MainWindow.RightButton)
-	S:SquareButton_SetIcon(Recount.MainWindow.RightButton, "RIGHT")
-	Recount.MainWindow.RightButton:Size(15)
-	Recount.MainWindow.RightButton:Point("TOPRIGHT", Recount.MainWindow.CloseButton, "TOPLEFT", 3, -8)
-
-	S:HandleNextPrevButton(Recount.MainWindow.LeftButton)
-	S:SquareButton_SetIcon(Recount.MainWindow.LeftButton, "LEFT")
-	Recount.MainWindow.LeftButton:Size(15)
-	Recount.MainWindow.LeftButton:Point("TOPRIGHT", Recount.MainWindow.RightButton, "TOPLEFT", -3, 0)
-
-	S:HandleNextPrevButton(Recount.MainWindow.ResetButton)
-	S:SquareButton_SetIcon(Recount.MainWindow.ResetButton, "DELETE")
-	Recount.MainWindow.ResetButton:Size(15)
-	Recount.MainWindow.ResetButton:Point("TOPRIGHT", Recount.MainWindow.LeftButton, "TOPLEFT", -3, 0)
-
-	Recount.MainWindow.FileButton:Point("RIGHT", Recount.MainWindow.ResetButton, "LEFT", -16, 0)
 
 	local buttons = {
 		Recount.MainWindow.RightButton,
@@ -74,6 +54,7 @@ local function LoadSkin()
 		local button = buttons[i]
 		if button then
 			AS:Desaturate(button)
+			button:StyleButton(nil, true)
 		end
 	end
 
@@ -104,8 +85,6 @@ local function LoadSkin()
 			S:HandleButton(Recount_ReportWindow.ReportButton)
 			S:HandleSliderFrame(Recount_ReportWindow_Slider)
 
-			AS:Desaturate(Recount_ReportWindow.CloseButton)
-
 			Recount_ReportWindow.Whisper:StripTextures(true)
 			S:HandleEditBox(Recount_ReportWindow.Whisper)
 			Recount_ReportWindow.Whisper:Height(16)
@@ -122,10 +101,6 @@ local function LoadSkin()
 
 			Recount.ConfigWindow.backdrop:StripTextures()
 			Recount.ConfigWindow.backdrop:SetTemplate("Transparent")
-
-			S:HandleCloseButton(Recount.ConfigWindow.CloseButton)
-			Recount.ConfigWindow.CloseButton:Size(32)
-			Recount.ConfigWindow.CloseButton:Point("TOPRIGHT", 4, -3)
 
 			S:HandleSliderFrame(Recount_ConfigWindow_Scaling_Slider)
 			S:HandleSliderFrame(Recount_ConfigWindow_RowHeight_Slider)

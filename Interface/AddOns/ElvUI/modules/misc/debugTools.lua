@@ -1,5 +1,5 @@
-local E, L, V, P, G = unpack(ElvUI);
-local D = E:NewModule("DebugTools", "AceEvent-3.0", "AceHook-3.0");
+local E, L, V, P, G = unpack(ElvUI)
+local D = E:NewModule("DebugTools", "AceEvent-3.0", "AceHook-3.0")
 
 E.DebugTools = D
 
@@ -12,8 +12,6 @@ local ScriptErrorsFrame_OnError = ScriptErrorsFrame_OnError
 local StaticPopup_Hide = StaticPopup_Hide
 
 function D:ModifyErrorFrame()
---	ScriptErrorsFrameScrollFrameText.cursorOffset = 0
---	ScriptErrorsFrameScrollFrameText.cursorHeight = 0
 	ScriptErrorsFrameScrollFrameText:SetScript("OnEditFocusGained", nil)
 
 	hooksecurefunc("ScriptErrorsFrame_Update", function()
@@ -58,8 +56,8 @@ function D:ModifyErrorFrame()
 end
 
 function D:ScriptErrorsFrame_UpdateButtons()
-	local numErrors = #ScriptErrorsFrame.order;
-	local index = ScriptErrorsFrame.index;
+	local numErrors = #ScriptErrorsFrame.order
+	local index = ScriptErrorsFrame.index
 	if ( index == 0 ) then
 		ScriptErrorsFrame.lastButton:Disable()
 		ScriptErrorsFrame.firstButton:Disable()
@@ -102,7 +100,7 @@ end
 
 function D:StaticPopup_Show(name)
 	if(name == "ADDON_ACTION_FORBIDDEN" and E.db.general.taintLog ~= true) then
-		StaticPopup_Hide(name);
+		StaticPopup_Hide(name)
 	end
 end
 

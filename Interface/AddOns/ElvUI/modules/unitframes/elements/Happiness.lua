@@ -7,7 +7,6 @@ function UF:Construct_Happiness(frame)
 	UF["statusbars"][HappinessIndicator] = true
 	HappinessIndicator:CreateBackdrop("Default", nil, nil, self.thinBorders, true)
 	HappinessIndicator:SetOrientation("VERTICAL")
-	HappinessIndicator:SetFrameStrata("LOW")
 	HappinessIndicator:SetMinMaxValues(0, 125)
 
 	HappinessIndicator.Override = UF.UpdateOverride
@@ -29,7 +28,7 @@ function UF:Configure_Happiness(frame)
 		end
 
 		HappinessIndicator:ClearAllPoints()
-		if not frame.USE_MINI_POWERBAR and not frame.USE_INSET_POWERBAR and not frame.POWERBAR_DETACHED and not frame.USE_POWERBAR_OFFSET then
+		if db.power.enable and not frame.USE_MINI_POWERBAR and not frame.USE_INSET_POWERBAR and not frame.POWERBAR_DETACHED and not frame.USE_POWERBAR_OFFSET then
 			if frame.ORIENTATION == "RIGHT" then
 				HappinessIndicator:Point("BOTTOMRIGHT", frame.Power, "BOTTOMLEFT", -frame.BORDER*2 + (frame.BORDER - frame.SPACING*3), 0)
 				HappinessIndicator:Point("TOPLEFT", frame.Health, "TOPLEFT", -frame.HAPPINESS_WIDTH, 0)
