@@ -69,21 +69,21 @@ local function SkinScrollBar(frame, thumbTrim)
 end
 
 local function SkinButton(f, strip, noTemplate)
-	local name = f:GetName();
+	local name = f:GetName()
 
-	if(name) then
-		local left = _G[name.."Left"];
-		local middle = _G[name.."Middle"];
-		local right = _G[name.."Right"];
+	if name then
+		local left = _G[name.."Left"]
+		local middle = _G[name.."Middle"]
+		local right = _G[name.."Right"]
 
-		if(left) then left:Kill(); end
-		if(middle) then middle:Kill(); end
-		if(right) then right:Kill(); end
+		if left then left:Kill() end
+		if middle then middle:Kill() end
+		if right then right:Kill() end
 	end
 
-	if(f.Left) then f.Left:Kill(); end
-	if(f.Middle) then f.Middle:Kill(); end
-	if(f.Right) then f.Right:Kill(); end
+	if f.Left then f.Left:Kill() end
+	if f.Middle then f.Middle:Kill() end
+	if f.Right then f.Right:Kill() end
 
 	if f.SetNormalTexture then f:SetNormalTexture("") end
 	if f.SetHighlightTexture then f:SetHighlightTexture("") end
@@ -313,12 +313,12 @@ function S:SkinAce3()
 		if TYPE == "ScrollFrame" then
 			local frame = widget.scrollbar
 			SkinScrollBar(frame)
-		elseif TYPE == "InlineGroup" or TYPE == "TreeGroup" or TYPE == "TabGroup" or TYPE == "SimpleGroup" or TYPE == "Frame" or TYPE == "DropdownGroup" or TYPE == "Window" then
+		elseif TYPE == "InlineGroup" or TYPE == "TreeGroup" or TYPE == "TabGroup" or TYPE == "Frame" or TYPE == "DropdownGroup" or TYPE == "Window" then
 			local frame = widget.content:GetParent()
 			if TYPE == "Frame" then
 				frame:StripTextures()
-				if(not E.GUIFrame) then
-					E.GUIFrame = frame;
+				if not E.GUIFrame then
+					E.GUIFrame = frame
 				end
 				for i=1, frame:GetNumChildren() do
 					local child = select(i, frame:GetChildren())
@@ -374,20 +374,24 @@ function S:SkinAce3()
 			if TYPE == "TabGroup" then
 				local oldCreateTab = widget.CreateTab
 				widget.CreateTab = function(self, id)
-					local tab = oldCreateTab(self, id);
-					tab:StripTextures();
-					tab.backdrop = CreateFrame("Frame", nil, tab);
-					tab.backdrop:SetTemplate("Transparent");
-					tab.backdrop:SetFrameLevel(tab:GetFrameLevel() - 1);
-					tab.backdrop:Point("TOPLEFT", 10, -3);
-					tab.backdrop:Point("BOTTOMRIGHT", -10, 0);
-					return tab;
+					local tab = oldCreateTab(self, id)
+					tab:StripTextures()
+					tab.backdrop = CreateFrame("Frame", nil, tab)
+					tab.backdrop:SetTemplate("Transparent")
+					tab.backdrop:SetFrameLevel(tab:GetFrameLevel() - 1)
+					tab.backdrop:Point("TOPLEFT", 10, -3)
+					tab.backdrop:Point("BOTTOMRIGHT", -10, 0)
+					return tab
 				end
 			end
 
 			if widget.scrollbar then
 				SkinScrollBar(widget.scrollbar)
 			end
+		elseif TYPE == "SimpleGroup" then
+			local frame = widget.content:GetParent()
+			frame:SetTemplate("Transparent", nil, true) --ignore border updates
+			frame:SetBackdropBorderColor(0,0,0,0) --Make border completely transparent
 		end
 
 		return oldRegisterAsContainer(self, widget)
@@ -406,4 +410,4 @@ local f = CreateFrame("Frame")
 f:RegisterEvent("ADDON_LOADED")
 f:SetScript("OnEvent", attemptSkin)
 
-S:AddCallback("Ace3", attemptSkin);
+S:AddCallback("Ace3", attemptSkin)
