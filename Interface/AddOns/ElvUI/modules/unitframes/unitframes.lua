@@ -13,19 +13,13 @@ local find, gsub, format = string.find, string.gsub, string.format
 --WoW API / Variables
 local hooksecurefunc = hooksecurefunc
 local CreateFrame = CreateFrame
-local IsAddOnLoaded = IsAddOnLoaded
 local UnitFrame_OnEnter = UnitFrame_OnEnter
 local UnitFrame_OnLeave = UnitFrame_OnLeave
 local IsInInstance = IsInInstance
 local InCombatLockdown = InCombatLockdown
-local CompactRaidFrameManager_GetSetting = CompactRaidFrameManager_GetSetting
-local CompactRaidFrameManager_SetSetting = CompactRaidFrameManager_SetSetting
 local GetInstanceInfo = GetInstanceInfo
 local UnregisterStateDriver = UnregisterStateDriver
 local RegisterStateDriver = RegisterStateDriver
-local UnregisterAttributeDriver = UnregisterAttributeDriver
-local CompactRaidFrameManager_UpdateShown = CompactRaidFrameManager_UpdateShown
-local CompactRaidFrameContainer = CompactRaidFrameContainer
 local MAX_RAID_MEMBERS = MAX_RAID_MEMBERS
 local MAX_BOSS_FRAMES = MAX_BOSS_FRAMES
 
@@ -205,6 +199,7 @@ function UF:ConvertGroupDB(group)
 end
 
 function UF:Construct_UF(frame, unit)
+	frame:SetFrameStrata("LOW")
 	frame:SetScript("OnEnter", UnitFrame_OnEnter)
 	frame:SetScript("OnLeave", UnitFrame_OnLeave)
 
@@ -482,6 +477,8 @@ function UF.groupPrototype:Configure_Groups(self)
 		point = DIRECTION_TO_POINT[direction]
 
 		if group then
+			group:Hide()
+
 			UF:ConvertGroupDB(group)
 			if point == "LEFT" or point == "RIGHT" then
 				group:SetAttribute("xOffset", db.horizontalSpacing * DIRECTION_TO_HORIZONTAL_SPACING_MULTIPLIER[direction])
@@ -525,6 +522,8 @@ function UF.groupPrototype:Configure_Groups(self)
 			else
 				group:SetAttribute("groupFilter", tostring(i))
 			end
+
+			group:Show()
 		end
 
 		--MATH!! WOOT
@@ -623,8 +622,8 @@ function UF.groupPrototype:AdjustVisibility(self)
 end
 
 function UF.groupPrototype:UpdateHeader(self)
-	local group = self.groupName;
-	UF["Update_"..E:StringTitle(group).."Header"](UF, self, UF.db["units"][group]);
+	local group = self.groupName
+	UF["Update_"..E:StringTitle(group).."Header"](UF, self, UF.db["units"][group])
 end
 
 function UF.headerPrototype:ClearChildPoints()
@@ -634,7 +633,7 @@ function UF.headerPrototype:ClearChildPoints()
 	end
 end
 
-function UF.headerPrototype:Update(isForced)
+function UF.headerPrototype:Update()
 	local group = self.groupName
 	local db = UF.db["units"][group]
 
@@ -688,17 +687,16 @@ function UF:CreateHeader(parent, groupFilter, overrideName, template, groupName,
 	local db = UF.db["units"][group]
 	ElvUF:SetActiveStyle("ElvUF_"..E:StringTitle(group))
 	local header = ElvUF:SpawnHeader(overrideName, headerTemplate, nil,
-			"initial-width", db.width,
-			"initial-height", db.height,
 			"groupFilter", groupFilter,
 			"showParty", true,
-			"showRaid", true,
+			"showRaid", group == "party" and false or true,
 			"showSolo", true,
 			template and "template", template)
 
 	header.groupName = group
 	header:SetParent(parent)
-	header:Show()
+	header:SetFrameStrata("LOW")
+	--header:Show()
 
 	for k, v in pairs(self.headerPrototype) do
 		header[k] = v
@@ -735,6 +733,8 @@ function UF:CreateAndUpdateHeaderGroup(group, groupFilter, template, headerUpdat
 
 		if db.numGroups then
 			self[group] = CreateFrame("Frame", "ElvUF_"..stringTitle, E.UIParent)
+			self[group]:SetFrameStrata("LOW")
+			self[group]:Hide()
 			self[group].groups = {}
 			self[group].groupName = group
 			self[group].template = self[group].template or template
@@ -749,7 +749,7 @@ function UF:CreateAndUpdateHeaderGroup(group, groupFilter, template, headerUpdat
 
 		self[group].db = db
 		self["headers"][group] = self[group]
-		self[group]:Show()
+		--self[group]:Show()
 	end
 
 	self[group].numGroups = numGroups
@@ -976,9 +976,9 @@ function ElvUF:DisableBlizzard(unit)
 	elseif(unit == "target") and E.private["unitframe"]["disabledBlizzardFrames"].target then
 		HandleFrame(TargetFrame)
 		HandleFrame(ComboFrame)
-	elseif(unit == "focus") and E.private["unitframe"]["disabledBlizzardFrames"].focus then
-		HandleFrame(FocusFrame)
-		HandleFrame(FocusFrameToT)
+--	elseif(unit == "focus") and E.private["unitframe"]["disabledBlizzardFrames"].focus then
+--		HandleFrame(FocusFrame)
+--		HandleFrame(FocusFrameToT)
 	elseif(unit == "targettarget") and E.private["unitframe"]["disabledBlizzardFrames"].target then
 		HandleFrame(TargetofTargetFrame)
 	elseif(unit:match"(boss)%d?$" == "boss") and E.private["unitframe"]["disabledBlizzardFrames"].boss then
@@ -1229,16 +1229,7 @@ function UF:ToggleTransparentStatusBar(isTransparent, statusBar, backdropTex, ad
 		statusBar:SetStatusBarTexture(LSM:Fetch("statusbar", self.db.statusbar))
 
 		if adjustBackdropPoints then
-			backdropTex:ClearAllPoints()
-			if statusBarOrientation == "VERTICAL" then
-				backdropTex:Point("TOPLEFT", statusBar, "TOPLEFT")
-				backdropTex:Point("BOTTOMLEFT", statusBarTex, "TOPLEFT")
-				backdropTex:Point("BOTTOMRIGHT", statusBarTex, "TOPRIGHT")
-			else
-				backdropTex:Point("TOPLEFT", statusBarTex, "TOPRIGHT")
-				backdropTex:Point("BOTTOMLEFT", statusBarTex, "BOTTOMRIGHT")
-				backdropTex:Point("BOTTOMRIGHT", statusBar, "BOTTOMRIGHT")
-			end
+			backdropTex:SetAllPoints(statusBar)
 		end
 
 		if invertBackdropTex then

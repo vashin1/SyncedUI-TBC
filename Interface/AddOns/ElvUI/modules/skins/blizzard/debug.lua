@@ -1,6 +1,17 @@
 local E, L, V, P, G = unpack(ElvUI);
 local S = E:GetModule("Skins");
 
+function S:LoadErrorSkin()
+	if E.private.skins.blizzard.enable ~= true or E.private.skins.blizzard.debug ~= true then return end
+	if IsAddOnLoaded("!DebugTools") then return end
+
+	ScriptErrors:SetParent(UIParent)
+	ScriptErrors:SetTemplate("Transparent")
+	S:HandleButton(ScriptErrorsButton)
+
+	ScriptErrors_Message:SetFont("Fonts\\FRIZQT__.TTF", 15, "NORMAL")
+end
+
 function S:LoadDebugSkin()
 	if E.private.skins.blizzard.enable ~= true or E.private.skins.blizzard.debug ~= true then return end
 
@@ -34,11 +45,21 @@ function S:LoadDebugSkin()
 	end
 
 	S:HandleButton(ScriptErrorsFrame.reload)
-	S:HandleButton(ScriptErrorsFrame.firstButton)
-	S:HandleButton(ScriptErrorsFrame.lastButton)
 	S:HandleNextPrevButton(ScriptErrorsFrame.previous)
 	S:HandleNextPrevButton(ScriptErrorsFrame.next)
 	S:HandleButton(ScriptErrorsFrame.close)
+
+	local function SkinFirstLast()
+		S:HandleButton(ScriptErrorsFrame.firstButton)
+		S:HandleButton(ScriptErrorsFrame.lastButton)
+	end
+
+	local DT = E:GetModule("DebugTools")
+	if DT.HideFrame then
+		SkinFirstLast()
+	else
+		hooksecurefunc(DT, "ModifyErrorFrame", SkinFirstLast)
+	end
 
 	-- TODO FIX HandleNextPrevButton button size
 	ScriptErrorsFrame.previous:Point("BOTTOM", ScriptErrorsFrame, "BOTTOM", -50, 12)
@@ -63,4 +84,5 @@ function S:LoadDebugSkin()
 	S:HandleCloseButton(EventTraceFrameCloseButton)
 end
 
+S:AddCallback("SkinErrorFrame", S.LoadErrorSkin)
 S:AddCallbackForAddon("!DebugTools", "SkinDebugTools", S.LoadDebugSkin)

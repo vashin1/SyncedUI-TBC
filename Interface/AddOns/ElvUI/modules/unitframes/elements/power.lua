@@ -26,8 +26,6 @@ function UF:Construct_PowerBar(frame, bg, text, textPos)
 
 	if(text) then
 		power.value = frame.RaisedElementParent:CreateFontString(nil, "OVERLAY");
-		power.value.frequentUpdates = true;
-
 		UF:Configure_FontString(power.value);
 
 		local x = -2;

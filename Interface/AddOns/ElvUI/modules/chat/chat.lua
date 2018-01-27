@@ -6,7 +6,7 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local _G = _G
 local time, difftime = time, difftime
 local pairs, unpack, select, tostring, next, tonumber, type, assert = pairs, unpack, select, tostring, next, tonumber, type, assert
-local tinsert, tremove, tsort, twipe, tconcat = table.insert, table.remove, table.sort, table.wipe, table.concat
+local tconcat, tinsert, tremove, twipe = table.concat, table.insert, table.remove, table.wipe
 local strmatch = strmatch
 local gsub, find, gmatch, format, split = string.gsub, string.find, string.gmatch, string.format, string.split
 local strlower, strsub, strlen, strupper = strlower, strsub, strlen, strupper
@@ -511,7 +511,7 @@ function CH:UpdateChatTabs()
 end
 
 function CH:PositionChat(override)
-	if ((InCombatLockdown() and not override and self.initialMove) or (IsMouseButtonDown("LeftButton") and not override)) then return end
+	if (InCombatLockdown() and not override and self.initialMove) then return end
 	if not RightChatPanel or not LeftChatPanel then return end
 	RightChatPanel:SetSize(E.db.chat.separateSizes and E.db.chat.panelWidthRight or E.db.chat.panelWidth, E.db.chat.separateSizes and E.db.chat.panelHeightRight or E.db.chat.panelHeight)
 	LeftChatPanel:SetSize(E.db.chat.panelWidth, E.db.chat.panelHeight)
@@ -972,7 +972,7 @@ function CH:ChatFrame_MessageEventHandler(event, ...)
 			self:AddMessage(CH:ConcatenateTimeStamp(body), info.r, info.g, info.b, info.id)
 		end
 
-		if type == "WHISPER" then
+		if not CH.SuppressFlash and type == "WHISPER" then
 			ChatEdit_SetLastTellTarget(arg2)
 			if self.tellTimer and (GetTime() > self.tellTimer) then
 				PlaySound("TellMessage")
@@ -1070,6 +1070,11 @@ function CH:SetupChat()
 			if id ~= 2 then
 				frame:SetScript("OnEvent", CH.FloatingChatFrame_OnEvent)
 			end
+
+			hooksecurefunc(frame, "StopMovingOrSizing", function()
+				CH:PositionChat(true)
+			end)
+
 			frame.scriptsSet = true
 		end
 	end
@@ -1101,8 +1106,9 @@ function CH:SetupChat()
 	end
 
 	DEFAULT_CHAT_FRAME:SetParent(LeftChatPanel)
-	self:ScheduleRepeatingTimer("PositionChat", 1)
-	-- self:PositionChat(true)
+
+--	self:PositionChat(true)
+	self:ScheduleTimer("PositionChat", 1)
 end
 
 local function PrepareMessage(author, message)
@@ -1292,7 +1298,7 @@ function CH:SetItemRef(link, text, button)
 		if IsModifiedClick("CHATLINK") then
 			ToggleFriendsFrame(4)
 		elseif button == "LeftButton" then
-			local chanLink = sub(link, 9)
+			local chanLink = strsub(link, 9)
 			local chatType, chatTarget = strsplit(":", chanLink)
 
 			if strupper(chatType) == "CHANNEL" then
@@ -1379,6 +1385,7 @@ function CH:DisplayChatHistory()
 	if not (data and next(data)) then return end
 
 	CH.SoundPlayed = true
+	CH.SuppressFlash = true
 	for i = 1, NUM_CHAT_WINDOWS do
 		chat = _G["ChatFrame"..i]
 		for i = 1, #data do
@@ -1394,6 +1401,7 @@ function CH:DisplayChatHistory()
 		end
 	end
 	CH.SoundPlayed = nil
+	CH.SuppressFlash = nil
 end
 
 tremove(ChatTypeGroup["GUILD"], 2)

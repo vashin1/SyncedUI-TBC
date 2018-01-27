@@ -6,12 +6,12 @@ local unpack, select = unpack, select
 
 local hooksecurefunc = hooksecurefunc
 local GetInboxItem = GetInboxItem
-local GetItemInfo = GetItemInfo
+local GetInboxItemLink = GetInboxItemLink
 local GetItemQualityColor = GetItemQualityColor
 local GetSendMailItem = GetSendMailItem
-local INBOXITEMS_TO_DISPLAY = INBOXITEMS_TO_DISPLAY
-local ATTACHMENTS_MAX_SEND = ATTACHMENTS_MAX_SEND
 local ATTACHMENTS_MAX_RECEIVE = ATTACHMENTS_MAX_RECEIVE
+local ATTACHMENTS_MAX_SEND = ATTACHMENTS_MAX_SEND
+local INBOXITEMS_TO_DISPLAY = INBOXITEMS_TO_DISPLAY
 
 function S:LoadMailSkin()
 	if E.private.skins.blizzard.enable ~= true or E.private.skins.blizzard.mail ~= true then return end
@@ -21,6 +21,19 @@ function S:LoadMailSkin()
 	MailFrame:CreateBackdrop("Transparent")
 	MailFrame.backdrop:Point("TOPLEFT", 10, -12)
 	MailFrame.backdrop:Point("BOTTOMRIGHT", -30, 74)
+
+	MailFrame:EnableMouseWheel(true)
+	MailFrame:SetScript("OnMouseWheel", function(_, value)
+		if value > 0 then
+			if InboxPrevPageButton:IsEnabled() == 1 then
+				InboxPrevPage()
+			end
+		else
+			if InboxNextPageButton:IsEnabled() == 1 then
+				InboxNextPage()
+			end	
+		end
+	end)
 
 	for i = 1, INBOXITEMS_TO_DISPLAY do
 		local mail = _G["MailItem"..i]

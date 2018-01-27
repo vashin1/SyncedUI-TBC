@@ -608,8 +608,8 @@ end
 function AB:UpdateButtonConfig(bar, buttonName)
 	if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED") return end
 	if not bar.buttonConfig then bar.buttonConfig = {hideElements = {}, colors = {}} end
-	bar.buttonConfig.hideElements.macro = self.db.macrotext
-	bar.buttonConfig.hideElements.hotkey = self.db.hotkeytext
+	bar.buttonConfig.hideElements.macro = not self.db.macrotext
+	bar.buttonConfig.hideElements.hotkey = not self.db.hotkeytext
 	bar.buttonConfig.showGrid = self.db["bar"..bar.id].showGrid
 	bar.buttonConfig.clickOnDown = self.db.keyDown
 	SetModifiedClick("PICKUPACTION", self.db.movementModifier)
@@ -625,6 +625,9 @@ function AB:UpdateButtonConfig(bar, buttonName)
 		button:SetAttribute("buttonlock", self.db.lockActionBars)
 		button:SetAttribute("checkselfcast", true)
 		button:SetAttribute("checkfocuscast", true)
+		if self.db.rightClickSelfCast then
+			bar:SetAttribute("unit-S"..(bar:GetAttribute("state-page") or 0).."Right", "player")
+		end
 
 		button:UpdateConfig(bar.buttonConfig)
 	end

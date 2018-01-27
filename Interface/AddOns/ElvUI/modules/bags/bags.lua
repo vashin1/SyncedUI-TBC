@@ -31,7 +31,6 @@ local GetMoney = GetMoney
 local GetNumBankSlots = GetNumBankSlots
 local IsBagOpen, IsOptionFrameOpen = IsBagOpen, IsOptionFrameOpen
 local IsControlKeyDown = IsControlKeyDown
-local IsModifiedClick = IsModifiedClick
 local PickupContainerItem = PickupContainerItem
 local PickupMerchantItem = PickupMerchantItem
 local PlaySound = PlaySound
@@ -40,7 +39,6 @@ local SetItemButtonDesaturated = SetItemButtonDesaturated
 local SetItemButtonTexture = SetItemButtonTexture
 local SetItemButtonTextureVertexColor = SetItemButtonTextureVertexColor
 local ToggleFrame = ToggleFrame
-local UpdateSlot = UpdateSlot
 local UseContainerItem = UseContainerItem
 
 local BANK_CONTAINER = BANK_CONTAINER
@@ -482,7 +480,7 @@ function B:Layout(isBank)
 				f.Bags[bagID] = CreateFrame("Frame", f:GetName().."Bag"..bagID, f)
 				f.Bags[bagID]:SetID(bagID)
 				f.Bags[bagID].UpdateBagSlots = B.UpdateBagSlots
-				f.Bags[bagID].UpdateSlot = UpdateSlot
+			--	f.Bags[bagID].UpdateSlot = B.UpdateSlot
 			end
 
 			f.Bags[bagID].numSlots = numSlots

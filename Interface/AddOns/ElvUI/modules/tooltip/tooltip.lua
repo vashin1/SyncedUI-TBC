@@ -45,7 +45,6 @@ local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local GetItemCount = GetItemCount
 local SetTooltipMoney = SetTooltipMoney
 local GameTooltip_ClearMoney = GameTooltip_ClearMoney
-local MerchantFrame = MerchantFrame
 local TARGET = TARGET
 local DEAD = DEAD
 local FOREIGN_SERVER_LABEL = FOREIGN_SERVER_LABEL
@@ -65,19 +64,6 @@ local TAPPED_COLOR = {r = .6, g = .6, b = .6}
 local AFK_LABEL = " |cffFFFFFF[|r|cffE7E716"..L["AFK"].."|r|cffFFFFFF]|r"
 local DND_LABEL = " |cffFFFFFF[|r|cffFF0000"..L["DND"].."|r|cffFFFFFF]|r"
 local keybindFrame
-
-local tooltips = {
-	GameTooltip,
-	ItemRefTooltip,
-	ConsolidatedBuffsTooltip,
-	ShoppingTooltip1,
-	ShoppingTooltip2,
-	WorldMapTooltip,
-	DropDownList1MenuBackdrop,
-	DropDownList2MenuBackdrop,
-	DropDownList3MenuBackdrop,
-	EventTraceTooltip
-}
 
 local classification = {
 	worldboss = format("|cffAF5050 %s|r", BOSS),
@@ -422,7 +408,7 @@ function TT:GameTooltip_OnTooltipSetUnit(tt)
 		if UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
 			color = TAPPED_COLOR
 		else
-			color = E.db.tooltip.useCustomFactionColors and E.db.tooltip.factionColors[""..UnitReaction(unit, "player")] or FACTION_BAR_COLORS[UnitReaction(unit, "player")]
+			color = E.db.tooltip.useCustomFactionColors and E.db.tooltip.factionColors[UnitReaction(unit, "player")] or FACTION_BAR_COLORS[UnitReaction(unit, "player")]
 		end
 
 		local levelLine = self:GetLevelLine(tt, 2)
@@ -447,7 +433,8 @@ function TT:GameTooltip_OnTooltipSetUnit(tt)
 			local _, class = UnitClass(unitTarget)
 			targetColor = CUSTOM_CLASS_COLORS and CUSTOM_CLASS_COLORS[class] or RAID_CLASS_COLORS[class]
 		else
-			targetColor = E.db.tooltip.useCustomFactionColors and E.db.tooltip.factionColors[""..UnitReaction(unitTarget, "player")] or FACTION_BAR_COLORS[UnitReaction(unitTarget, "player")]
+			local reaction = UnitReaction(unitTarget, "player") or 4
+			targetColor = E.db.tooltip.useCustomFactionColors and E.db.tooltip.factionColors[reaction] or FACTION_BAR_COLORS[reaction]
 		end
 
 		GameTooltip:AddDoubleLine(format("%s:", TARGET), format("|cff%02x%02x%02x%s|r", targetColor.r * 255, targetColor.g * 255, targetColor.b * 255, UnitName(unitTarget)))
@@ -611,15 +598,17 @@ function TT:SetItemRef(link)
 end
 
 function TT:CheckBackdropColor()
-	local r, g, b = GameTooltip:GetBackdropColor()
-	r = E:Round(r, 1)
-	g = E:Round(g, 1)
-	b = E:Round(b, 1)
-	local red, green, blue = unpack(E.media.backdropfadecolor)
-	local alpha = self.db.colorAlpha
+	if not GameTooltip:IsShown() then return end
 
-	if r ~= red or g ~= green or b ~= blue then
-		GameTooltip:SetBackdropColor(red, green, blue, alpha)
+	local r, g, b = GameTooltip:GetBackdropColor()
+	if (r and g and b) then
+		r = E:Round(r, 1)
+		g = E:Round(g, 1)
+		b = E:Round(b, 1)
+		local red, green, blue = unpack(E.media.backdropfadecolor)
+		if (r ~= red or g ~= green or b ~= blue) then
+			GameTooltip:SetBackdropColor(red, green, blue, self.db.colorAlpha)
+		end
 	end
 end
 
@@ -665,16 +654,10 @@ function TT:Initialize()
 	self.db = E.db.tooltip
 
 	if E.private.tooltip.enable ~= true then return end
-	E.Tooltip = self
+	E.Tooltip = TT
 
 	GameTooltipStatusBar:Height(self.db.healthBar.height)
-	GameTooltipStatusBar:SetStatusBarTexture(E["media"].normTex)
-	E:RegisterStatusBar(GameTooltipStatusBar)
-	GameTooltipStatusBar:CreateBackdrop("Transparent")
-	GameTooltipStatusBar:SetScript("OnValueChanged", self.OnValueChanged)
-	GameTooltipStatusBar:ClearAllPoints()
-	GameTooltipStatusBar:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT", E.Border, -(E.Spacing * 3))
-	GameTooltipStatusBar:SetPoint("TOPRIGHT", GameTooltip, "BOTTOMRIGHT", -E.Border, -(E.Spacing * 3))
+	GameTooltipStatusBar:SetScript("OnValueChanged", nil)
 	GameTooltipStatusBar.text = GameTooltipStatusBar:CreateFontString(nil, "OVERLAY")
 	GameTooltipStatusBar.text:Point("CENTER", GameTooltipStatusBar, 0, -3)
 	GameTooltipStatusBar.text:FontTemplate(E.LSM:Fetch("font", self.db.healthBar.font), self.db.healthBar.fontSize, self.db.healthBar.fontOutline)
@@ -699,16 +682,10 @@ function TT:Initialize()
 	self:HookScript(GameTooltip, "OnTooltipCleared", "GameTooltip_OnTooltipCleared")
 	self:HookScript(GameTooltip, "OnTooltipSetItem", "GameTooltip_OnTooltipSetItem")
 	self:HookScript(GameTooltip, "OnTooltipSetUnit", "GameTooltip_OnTooltipSetUnit")
-	self:HookScript(GameTooltip, "OnSizeChanged", "CheckBackdropColor")
 
 	self:HookScript(GameTooltipStatusBar, "OnValueChanged", "GameTooltipStatusBar_OnValueChanged")
 
 	self:RegisterEvent("MODIFIER_STATE_CHANGED")
-	self:RegisterEvent("CURSOR_UPDATE", "CheckBackdropColor")
-	E.Skins:HandleCloseButton(ItemRefCloseButton)
-	for _, tt in pairs(tooltips) do
-		self:HookScript(tt, "OnShow", "SetStyle")
-	end
 
 	keybindFrame = ElvUI_KeyBinder
 end

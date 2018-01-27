@@ -84,46 +84,10 @@ function EMB:EmbedUpdate()
 		self:EmbedCreate()
 	end
 
-	self:EmbedToggle()
 	self:WindowResize()
 
 	if self:CheckEmbed("Omen") then self:EmbedOmen() end
 	if self:CheckEmbed("Recount") then self:EmbedRecount() end
-end
-
-function EMB:EmbedToggle()
-	self.leftFrame.frameName = nil
-	self.rightFrame.frameName = nil
-
-	local left = lower(self.db.leftWindow)
-	if left ~= "omen" and left ~= "recount" then
-		self.leftFrame.frameName = self.db.leftWindow
-	end
-
-	if self.db.embedType == "DOUBLE" then
-		local right = lower(self.db.rightWindow)
-		if right ~= "omen" and right ~= "recount" then
-			self.rightFrame.frameName = self.db.rightWindow
-		end
-	end
-
-	if self.leftFrame.frameName then
-		local frame = _G[self.left.frameName]
-		if frame and frame:IsObjectType("Frame") and not frame:IsProtected() then
-			frame:ClearAllPoints()
-			frame:SetParent(self.leftFrame)
-			frame:SetInside(self.leftFrame, 0, 0)
-		end
-	end
-
-	if self.rightFrame.frameName then
-		local frame = _G[self.rightFrame.frameName]
-		if frame and frame:IsObjectType("Frame") and not frame:IsProtected() then
-			frame:ClearAllPoints()
-			frame:SetParent(self.rightFrame)
-			frame:SetInside(self.rightFrame, 0, 0)
-		end
-	end
 end
 
 function EMB:SetHooks()
@@ -248,7 +212,7 @@ function EMB:WindowResize()
 	if isDouble then
 		self.leftFrame:ClearAllPoints()
 		self.leftFrame:Point("TOPLEFT", self.mainFrame)
-		self.leftFrame:Point("BOTTOMRIGHT", self.mainFrame, "BOTTOMRIGHT", -(self.db.leftWindowWidth + SPACING), 0)
+		self.leftFrame:Point("BOTTOMRIGHT", self.mainFrame, "BOTTOMRIGHT", -(self.mainFrame:GetWidth() - self.db.leftWindowWidth + SPACING), 0)
 
 		self.rightFrame:ClearAllPoints()
 		self.rightFrame:Point("TOPLEFT", self.leftFrame, "TOPRIGHT", SPACING, 0)
